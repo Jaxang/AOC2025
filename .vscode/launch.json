@@ -5,13 +5,15 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceRoot}/target/debug/AoC_2025",
-            "args": [],
+            "program": "${workspaceRoot}/target/debug/aoc_2025",
+            "args": [
+                "all"
+            ],
             "cwd": "${workspaceRoot}",
             "sourceLanguages": [
                 "rust"
             ],
-            "preLaunchTask": "build"
+            "preLaunchTask": "build_code"
         }
     ]
 }
