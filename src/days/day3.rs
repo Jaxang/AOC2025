@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 use std::io;
 
-// use crate::utils;
-
 pub fn run(lines: &[String]) -> io::Result<()> {
     let test_data = test_input();
     star1(&test_data);
@@ -13,7 +11,10 @@ pub fn run(lines: &[String]) -> io::Result<()> {
 }
 
 fn star1(lines: &[String]) {
-    let joltages: u32 = lines.iter().map(find_largest_two_digits).sum();
+    let joltages: u32 = lines
+        .iter()
+        .map(|x| find_largest_two_digits(x.as_str()))
+        .sum();
     println!("Total: {}", joltages);
 }
 
@@ -29,7 +30,7 @@ fn star2(lines: &[String]) {
     println!("Total: {}", joltages);
 }
 
-fn find_largest_two_digits(line: &String) -> u32 {
+fn find_largest_two_digits(line: &str) -> u32 {
     let digits_s: Vec<u32> = line.chars().map(|x| x.to_digit(10).unwrap()).collect();
     let mut max_first_digit = 0;
     let mut max_second_digit = 0;
@@ -42,8 +43,7 @@ fn find_largest_two_digits(line: &String) -> u32 {
         }
         max_first_digit = first_num;
         max_second_digit = 0;
-        for j in i + 1..line.len() {
-            let second_num = digits_s[j];
+        for &second_num in digits_s[(i + 1)..line.len()].iter() {
             if second_num > max_second_digit {
                 max_second_digit = second_num;
             }
@@ -82,7 +82,7 @@ fn find_largest_n_digits(
             }
         }
     }
-    for k in i as usize..(end_idx + 1) {
+    for k in i..(end_idx + 1) {
         cache.insert((k, n), max_total);
     }
     max_total

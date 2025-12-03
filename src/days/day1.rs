@@ -11,14 +11,14 @@ pub fn run(lines: &[String]) -> io::Result<()> {
     Ok(())
 }
 
-fn star1(data: &[String]) -> () {
+fn star1(data: &[String]) {
     let steps = parse_steps(data);
     let cum_step = cumulative_step(&steps, 50, 100);
     let count = count_zeros(&cum_step);
     println!("Number of zeros: {}", count);
 }
 
-fn star2(data: &[String]) -> () {
+fn star2(data: &[String]) {
     let steps = parse_steps(data);
     let count = count_passing_zero(&steps, 50, 100);
     println!("Number of zeros: {}", count);
@@ -59,11 +59,11 @@ fn cumulative_step(steps: &[i32], start: i32, modulus: i32) -> Vec<i32> {
 }
 
 fn parse_steps(lines: &[String]) -> Vec<i32> {
-    lines.iter().map(parse_step).collect()
+    lines.iter().map(|x| parse_step(x)).collect()
 }
 
-fn parse_step(s: &String) -> i32 {
-    let direction = if s[0..1] == "R".to_string() { 1 } else { -1 };
+fn parse_step(s: &str) -> i32 {
+    let direction = if &s[0..1] == "R" { 1 } else { -1 };
     let n_steps = s[1..s.len()].parse::<i32>().unwrap();
     n_steps * direction
 }

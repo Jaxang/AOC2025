@@ -18,7 +18,7 @@ fn star1(line: &str) {
         .iter()
         .map(|x| utils::parser::parse_split_by_sep(x, "-"))
         .collect();
-    let counts: Vec<Vec<u64>> = start_end_strs.iter().map(count_patterns).collect();
+    let counts: Vec<Vec<u64>> = start_end_strs.iter().map(|x| count_patterns(x)).collect();
     let mut total = 0;
     for matched_patterns in counts {
         for matched_pattern in matched_patterns {
@@ -101,7 +101,7 @@ fn has_pattern(number: u64) -> bool {
     false
 }
 
-fn count_patterns(patterns: &Vec<String>) -> Vec<u64> {
+fn count_patterns(patterns: &[String]) -> Vec<u64> {
     let mut matched_patters: Vec<u64> = Vec::new();
     let start = &patterns[0];
     let end = &patterns[1];
@@ -137,8 +137,8 @@ fn count_patterns(patterns: &Vec<String>) -> Vec<u64> {
     }
     let top_of_start_range = "9".repeat(start.len());
     let bottom_of_end_range = "1".to_owned() + &"0".repeat(end.len() - 1);
-    let mut count = count_patterns(&vec![start.to_owned(), top_of_start_range]);
-    count.extend(count_patterns(&vec![bottom_of_end_range, end.to_owned()]));
+    let mut count = count_patterns(&[start.to_owned(), top_of_start_range]);
+    count.extend(count_patterns(&[bottom_of_end_range, end.to_owned()]));
 
     count
 }
