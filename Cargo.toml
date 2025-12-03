@@ -5,3 +5,6 @@ edition = "2021"
 include = ["inputs/"]
 
 [dependencies]
+iter_accumulate = "1.0.1"
+regex = "1.12.1"
+fancy-regex = "0.16.2"

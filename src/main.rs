@@ -5,23 +5,6 @@ use std::time::Instant;
 mod days;
 mod utils;
 
-// fn main() {
-//     if let Ok(lines) = utils::read_file::read_lines_as_list_of_str("inputs/day1.txt") {
-//         for line in lines.iter() {
-//             let data = utils::read_file::parse_space_divided_numbers(line).unwrap();
-//             println!("{} {} {}", data[0], data[1], data.len());
-//         }
-//         let all_data: Vec<Vec<i32>> = lines
-//             .iter()
-//             .map(|x| utils::read_file::parse_space_divided_numbers(x).unwrap())
-//             .collect();
-//     } else {
-//         println!("Missing file.");
-//     }
-
-//     println!("Hello, world!");
-// }
-
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
@@ -69,8 +52,8 @@ fn run_all() {
     run_day(days::day12::run, "day12");
 }
 
-fn run_day(func: fn(&Vec<String>) -> io::Result<()>, day: &str) {
-    let filename = format!("inputs/{}.txt", day);
+fn run_day(func: fn(&[String]) -> io::Result<()>, day: &str) {
+    let filename = format!("day_inputs/{}.txt", day);
     if let Ok(lines) = utils::read_file::read_lines_as_list_of_str(filename) {
         println!("Running {}", day);
         let start = Instant::now();
