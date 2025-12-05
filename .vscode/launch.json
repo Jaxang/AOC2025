@@ -7,7 +7,7 @@
             "name": "Debug",
             "program": "${workspaceRoot}/target/debug/aoc_2025",
             "args": [
-                "day3"
+                "day5"
             ],
             "cwd": "${workspaceRoot}",
             "sourceLanguages": [
