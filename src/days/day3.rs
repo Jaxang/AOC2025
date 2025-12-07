@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::cmp;
 use std::io;
 
 pub fn run(lines: &[String]) -> io::Result<()> {
@@ -23,10 +23,7 @@ fn star2(lines: &[String]) {
         .iter()
         .map(|y| y.chars().map(|x| x.to_digit(10).unwrap()).collect())
         .collect();
-    let joltages: u64 = inputs
-        .iter()
-        .map(|x| find_largest_n_digits(x, 0, 12, &mut HashMap::new()))
-        .sum();
+    let joltages: u64 = inputs.iter().map(|x| find_largest_n_digits(x, 12)).sum();
     println!("Total: {}", joltages);
 }
 
@@ -52,40 +49,41 @@ fn find_largest_two_digits(line: &str) -> u32 {
     max_first_digit * 10 + max_second_digit
 }
 
-fn find_largest_n_digits(
-    line: &[u32],
-    i: usize,
-    n: usize,
-    cache: &mut HashMap<(usize, usize), u64>,
-) -> u64 {
-    if let Some(chached_val) = cache.get(&(i, n)) {
-        return *chached_val;
-    }
-    let mut max_curr_digit = 0;
-    let mut max_total = 0;
-    let mut end_idx = 0;
-    for j in i..line.len() - (n - 1) {
-        let curr_digit = line[j] as u64;
-        if curr_digit >= max_curr_digit {
-            if n == 1 {
-                max_total = curr_digit;
-                max_curr_digit = curr_digit;
-                end_idx = j;
-                continue;
-            }
-            let sub_val = find_largest_n_digits(line, j + 1, n - 1, cache);
-            let new_val = 10u64.pow(n as u32 - 1) * curr_digit + sub_val;
-            if new_val >= max_total {
-                max_total = new_val;
-                max_curr_digit = curr_digit;
-                end_idx = j;
+fn find_largest_n_digits(line: &[u32], n: usize) -> u64 {
+    let mut idx_and_numbers: Vec<(usize, u32)> = line.iter().cloned().enumerate().collect();
+    idx_and_numbers.sort_by_key(|x| (10 - (x.1)) * line.len() as u32 + x.0 as u32);
+    let first_index_cut_off = line.len() - n;
+
+    let mut free_slot = vec![true; n];
+    let mut min_allowed_idx: Vec<usize> = (0..n).collect();
+    let mut output: u64 = 0;
+    let mut filled_squares = 0;
+    for (i, num) in idx_and_numbers {
+        let offset_from_back = line.len() - i;
+        let start_idx = if i <= first_index_cut_off {
+            0
+        } else {
+            n - offset_from_back
+        };
+        let mut placed = false;
+        for curr_idx in start_idx..n {
+            if placed {
+                min_allowed_idx[curr_idx] = cmp::max(min_allowed_idx[curr_idx], i + 1);
+            } else if free_slot[curr_idx] {
+                if i < min_allowed_idx[curr_idx] {
+                    break;
+                }
+                placed = true;
+                free_slot[curr_idx] = false;
+                output += num as u64 * 10u64.pow((n - curr_idx - 1) as u32);
+                filled_squares += 1;
             }
         }
+        if filled_squares == n {
+            break;
+        }
     }
-    for k in i..(end_idx + 1) {
-        cache.insert((k, n), max_total);
-    }
-    max_total
+    output
 }
 
 fn test_input() -> Vec<String> {
