@@ -87,53 +87,17 @@ fn find_min_number_of_presses_2(line: &str) -> u64 {
     let value = find_possible_presses(
         &target_joltage,
         &buttons.iter().by_ref().collect::<Vec<&Vec<usize>>>(),
+        0,
     );
     println!("Value: {}", value);
     value
-
-    // let max_steps = target_joltage.iter().max().unwrap();
-
-    // let mut queue = BinaryHeap::new();
-    // let mut curr_steps = 0;
-    // queue.push(Node2 {
-    //     steps: 0,
-    //     joltage: vec![0; target_joltage.len()],
-    // });
-
-    // let mut visited = HashSet::new();
-    // while !queue.is_empty() && !visited.contains(&target_joltage) {
-    //     let curr_node = queue.pop().unwrap();
-    //     curr_steps = curr_node.steps;
-    //     if visited.contains(&curr_node.joltage) {
-    //         continue;
-    //     }
-
-    //     for b in buttons.iter() {
-    //         let mut new_joltage = vec![0; target_joltage.len()];
-    //         let mut valid = true;
-    //         for (i, (v1, v2)) in curr_node.joltage.iter().zip(b).enumerate() {
-    //             new_joltage[i] = v1 + v2;
-    //             valid &= new_joltage[i] <= target_joltage[i];
-    //         }
-    //         if valid {
-    //             queue.push(Node2 {
-    //                 steps: curr_node.steps + 1,
-    //                 joltage: new_joltage,
-    //             });
-    //         }
-    //     }
-
-    //     visited.insert(curr_node.joltage);
-    // }
-    // println!("Hej {}", curr_steps);
-    // curr_steps
 }
 
-fn find_possible_presses(target_joltage: &[u16], buttons: &[&Vec<usize>]) -> u64 {
+fn find_possible_presses(target_joltage: &[u16], buttons: &[&Vec<usize>], depth: u64) -> u64 {
     if target_joltage.iter().sum::<u16>() == 0 {
         return 0;
     } else if buttons.is_empty() {
-        return 1000;
+        return 1000000;
     }
     let mut button_map = HashMap::new();
     for (i, button) in buttons.iter().enumerate() {
@@ -148,21 +112,23 @@ fn find_possible_presses(target_joltage: &[u16], buttons: &[&Vec<usize>]) -> u64
 
     let best_start_valeu = counter_buttons[0].0;
     let n_buttons = counter_buttons[0].1;
-    let affected_buttons = button_map.get(&best_start_valeu).unwrap();
+    let affected_buttons_set = button_map.get(&best_start_valeu).unwrap();
     let mut new_buttons = Vec::new();
     for (i, &button) in buttons.iter().enumerate() {
-        if !affected_buttons.contains(&i) {
+        if !affected_buttons_set.contains(&i) {
             new_buttons.push(button);
         }
     }
 
-    let combos = combinations(target_joltage[best_start_valeu] as usize, n_buttons);
-    let mut min_steps = target_joltage.iter().sum::<u16>() as u64;
+    let affected_buttons: Vec<&usize> = affected_buttons_set.iter().collect();
+    let combos: Vec<Vec<usize>> =
+        combinations(target_joltage[best_start_valeu] as usize, n_buttons);
+    let mut min_steps = 1000000;
     for combo in combos {
         let mut new_target: Vec<u16> = target_joltage.to_vec();
         let mut valid = true;
         for (i, &button_idx) in affected_buttons.iter().enumerate() {
-            let button = buttons[button_idx];
+            let button = buttons[*button_idx];
             let step = combo[i] as u16;
             for &v in button {
                 if new_target[v] < step {
@@ -178,7 +144,17 @@ fn find_possible_presses(target_joltage: &[u16], buttons: &[&Vec<usize>]) -> u64
         if !valid {
             continue;
         }
-        min_steps = min(min_steps, find_possible_presses(&new_target, &new_buttons));
+        let min_possible_steps_left = *new_target.iter().max().unwrap() as u64;
+        if min_possible_steps_left > min_steps {
+            // steps => min_possible_steps_left > min_steps
+            continue;
+        }
+        let steps = find_possible_presses(&new_target, &new_buttons, depth + 1);
+        assert!(steps >= min_possible_steps_left);
+        min_steps = min(min_steps, steps);
+        if steps == min_possible_steps_left {
+            break;
+        }
     }
     min_steps + target_joltage[best_start_valeu] as u64
 }
@@ -249,15 +225,6 @@ fn parse_button_2(button_str: &str) -> Vec<usize> {
         }
     }
     output
-
-    // let mut buttons = vec![0; size];
-    // for i in button_str[1..button_str.len() - 1]
-    //     .split(',')
-    //     .map(|x| x.parse::<usize>().unwrap())
-    // {
-    //     buttons[i] = 1;
-    // }
-    // buttons
 }
 
 fn parse_joltage(button_str: &str) -> Vec<u16> {
